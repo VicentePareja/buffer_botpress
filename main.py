@@ -1,5 +1,3 @@
-import requests
-import uuid
 import time
 from botpress_talk import crear_usuario, create_conversation, create_message, list_messages, call_hello_endpoint
 
@@ -14,7 +12,7 @@ def main():
     # 2. recibirmensaje y crear timer de 15 segundos
     # 3. recibir mensaje, concatenar y repetir dos.
 
-    mensaje: str = "Holaaa2"
+    mensaje: str = "Holaaa heroku"
     user_id, x_user_key = crear_usuario(base_url)
     conversation_id = create_conversation(base_url, user_id, x_user_key)
     create_message(base_url, user_id, conversation_id, x_user_key, mensaje)
