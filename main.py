@@ -13,6 +13,7 @@ timer = None
 lock = threading.Lock()
 app = FastAPI()
 
+
 def send_message(base_url, mensaje):
     user_id, x_user_key = crear_usuario(base_url)
     conversation_id = create_conversation(base_url, user_id, x_user_key)
@@ -23,14 +24,16 @@ def send_message(base_url, mensaje):
     for message in all_messages:
         print(f"Mensaje: {message.get('payload').get('text')}\n")
 
+
 def enviar_mensaje_acumulado():
     global mensaje_acumulado, timer
     with lock:
         if mensaje_acumulado:
             send_message(base_url, mensaje_acumulado)
-            print(f"{mensaje_acumulado}")
+            print(f"Mensaje enviado: {mensaje_acumulado}")
             mensaje_acumulado = ""  # Resetear el mensaje acumulado
         timer = None
+
 
 def recibir_mensaje(nuevo_mensaje):
     global mensaje_acumulado, timer
@@ -49,18 +52,30 @@ def recibir_mensaje(nuevo_mensaje):
         timer = threading.Timer(15.0, enviar_mensaje_acumulado)
         timer.start()
 
+
 @app.post("/recibir_mensaje")
 async def endpoint_recibir_mensaje(request: Request):
-    data = await request.json()
-    nuevo_mensaje = data.get("mensaje", "")
+    try:
+        data = await request.json()
+        nuevo_mensaje = data.get("payload", {}).get("text", "")  # Extraer mensaje del payload
 
-    print(f"DEBUG: {nuevo_mensaje}")
-    print(f"DEBUG: {nuevo_mensaje.json().get("preview")}")
-    if nuevo_mensaje:
-        recibir_mensaje(nuevo_mensaje)
-        return {"status": "Mensaje recibido y procesado"}
-    else:
-        return {"status": "Falta el mensaje en la solicitud"}
+        # Extraer el preview del mensaje, si existe
+        preview = data.get("preview", None)
+
+        # Debugging
+        print(f"DEBUG: Nuevo mensaje recibido: {nuevo_mensaje}")
+        if preview:
+            print(f"DEBUG: Preview del mensaje: {preview}")
+
+        if nuevo_mensaje:
+            recibir_mensaje(nuevo_mensaje)
+            return {"status": "Mensaje recibido y procesado"}
+        else:
+            return {"status": "Falta el mensaje en la solicitud"}
+    except Exception as e:
+        print(f"Error procesando el mensaje: {e}")
+        return {"status": "Error procesando el mensaje", "detail": str(e)}
+
 
 def main():
     print("API iniciada. Escuchando mensajes en el endpoint /recibir_mensaje...")
