@@ -67,24 +67,34 @@ async def endpoint_recibir_mensaje(request: Request):
         data = await request.json()
         print(f"DEBUG: Datos recibidos: {data}")
 
-        # Extraer el texto del mensaje
-        nuevo_mensaje = data.get("payload", {}).get("text", "")
-        preview = data.get("preview", None)
+        # Validar si el campo 'mensaje' existe en los datos recibidos
+        if "mensaje" in data:
+            mensaje_data = data["mensaje"]  # Extraer el campo 'mensaje'
+            print(f"DEBUG: Contenido de 'mensaje': {mensaje_data}")
 
-        # Debugging de los datos extraídos
-        print(f"DEBUG: Nuevo mensaje extraído: {nuevo_mensaje}")
-        if preview:
-            print(f"DEBUG: Preview extraído: {preview}")
+            # Extraer el texto del mensaje desde 'payload'
+            nuevo_mensaje = mensaje_data.get("payload", {}).get("text", "")
+            preview = mensaje_data.get("preview", None)
 
-        if nuevo_mensaje:
-            recibir_mensaje(nuevo_mensaje)
-            return {"status": "Mensaje recibido y procesado"}
+            # Depuración del mensaje extraído
+            print(f"DEBUG: Nuevo mensaje extraído: {nuevo_mensaje}")
+            if preview:
+                print(f"DEBUG: Preview extraído: {preview}")
+
+            # Verificar si el mensaje es válido antes de procesarlo
+            if nuevo_mensaje:
+                recibir_mensaje(nuevo_mensaje)
+                return {"status": "Mensaje recibido y procesado"}
+            else:
+                print("DEBUG: El mensaje recibido está vacío o no tiene formato esperado.")
+                return {"status": "Falta el texto en el mensaje recibido"}
         else:
-            print("DEBUG: El mensaje recibido está vacío o no tiene formato esperado.")
-            return {"status": "Falta el mensaje en la solicitud"}
+            print("DEBUG: El campo 'mensaje' no está presente en los datos recibidos.")
+            return {"status": "Falta el campo 'mensaje' en la solicitud"}
     except Exception as e:
         print(f"Error procesando el mensaje: {e}")
         return {"status": "Error procesando el mensaje", "detail": str(e)}
+
 
 
 def main():
