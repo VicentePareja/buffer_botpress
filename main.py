@@ -28,7 +28,7 @@ def enviar_mensaje_acumulado():
     with lock:
         if mensaje_acumulado:
             send_message(base_url, mensaje_acumulado)
-            print(f"Mensaje enviado: \n{mensaje_acumulado}")
+            print(f"{mensaje_acumulado}")
             mensaje_acumulado = ""  # Resetear el mensaje acumulado
         timer = None
 
