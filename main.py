@@ -17,8 +17,8 @@ def send_message(base_url, mensaje):
     user_id, x_user_key = crear_usuario(base_url)
     conversation_id = create_conversation(base_url, user_id, x_user_key)
     create_message(base_url, user_id, conversation_id, x_user_key, mensaje)
-    # Espera de 15 segundos antes de listar los mensajes
-    time.sleep(15)  # Pausa de 15 segundos
+    # Espera de 20 segundos antes de listar los mensajes
+    time.sleep(20)  # Pausa de 20 segundos
     all_messages = list_messages(base_url, conversation_id, x_user_key)
     for message in all_messages:
         print(f"Mensaje: {message.get('payload').get('text')}\n")
@@ -46,7 +46,7 @@ def recibir_mensaje(nuevo_mensaje):
             timer.cancel()
 
         # Crear un nuevo temporizador
-        timer = threading.Timer(30.0, enviar_mensaje_acumulado)
+        timer = threading.Timer(15.0, enviar_mensaje_acumulado)
         timer.start()
 
 @app.post("/recibir_mensaje")
@@ -66,3 +66,4 @@ def main():
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+    main()
