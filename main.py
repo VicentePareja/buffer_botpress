@@ -53,6 +53,9 @@ def recibir_mensaje(nuevo_mensaje):
 async def endpoint_recibir_mensaje(request: Request):
     data = await request.json()
     nuevo_mensaje = data.get("mensaje", "")
+
+    print(f"DEBUG: {nuevo_mensaje}")
+    print(f"DEBUG: {nuevo_mensaje.json().get("preview")}")
     if nuevo_mensaje:
         recibir_mensaje(nuevo_mensaje)
         return {"status": "Mensaje recibido y procesado"}
