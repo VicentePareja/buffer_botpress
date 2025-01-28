@@ -128,8 +128,7 @@ async def endpoint_recibir_mensaje(request: Request):
     """
     try:
         data = await request.json()
-        print(f"[DEBUG] Datos recibidos: {data}\n\n")
-        message = data.get("message", {})
+        message = data.get("mensaje", {})
         # Importante: aquí ajusta cómo extraes el conversationId y el preview,
         # dependiendo de la estructura JSON real que recibas.
         conversation_id = message.get("conversationId")
