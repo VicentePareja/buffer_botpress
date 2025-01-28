@@ -28,16 +28,14 @@ lock = threading.Lock()
 # ---------------------------------------------------------------------------------
 def send_buffered_messages_to_logic(conversation_id, messages_list):
     """
-    Envía la lista de mensajes concatenados a Botpress.
-    Aquí puedes adaptar la lógica de envío, por ejemplo:
-      - crear_usuario()
-      - create_conversation()
-      - create_message()
-      - list_messages()  (opcional, si quieres ver la respuesta del bot)
+    Envía un JSON con `conversation_id` y `messages` a Botpress.
     """
-    # Unimos los mensajes en un único string con saltos de línea
-    texto_concatenado = "\n".join(messages_list)
-    print(f"[DEBUG] Enviando al bot lógico:\nConversationID: {conversation_id}\nMensajes:\n{texto_concatenado}\n")
+    # Construimos el JSON con los datos necesarios
+    payload = {
+        "conversation_id": conversation_id,
+        "messages": messages_list
+    }
+    print(f"[DEBUG] Enviando al bot lógico:\nPayload: {payload}\n")
 
     # 1. Crear usuario
     user_id, x_user_key = crear_usuario(BASE_URL)
@@ -51,12 +49,12 @@ def send_buffered_messages_to_logic(conversation_id, messages_list):
         print(f"[ERROR] No se pudo crear conversación lógica para {conversation_id}. Abortando envío.")
         return
 
-    # 3. Enviar mensajes concatenados a la nueva conversación en el bot lógico
-    response = create_message(BASE_URL, user_id, logic_conversation_id, x_user_key, texto_concatenado)
+    # 3. Enviar JSON al bot lógico
+    response = create_message(BASE_URL, user_id, logic_conversation_id, x_user_key, payload)
     if response:
-        print(f"[DEBUG] Mensaje enviado al bot lógico: {response}")
+        print(f"[DEBUG] JSON enviado al bot lógico: {response}")
     else:
-        print(f"[ERROR] Ocurrió un problema al enviar los mensajes al bot lógico.")
+        print(f"[ERROR] Ocurrió un problema al enviar el JSON al bot lógico.")
 
     # (Opcional) Esperar para listar los mensajes y ver qué responde el bot
     time.sleep(2)  # Ajusta si necesitas más o menos tiempo
@@ -64,6 +62,7 @@ def send_buffered_messages_to_logic(conversation_id, messages_list):
     for idx, msg in enumerate(all_messages, start=1):
         payload = msg.get('payload', {})
         print(f" - Respuesta {idx} del bot lógico: {payload.get('text', '')}")
+
 
 
 # ---------------------------------------------------------------------------------
@@ -134,7 +133,6 @@ async def endpoint_recibir_mensaje(request: Request):
         conversation_id = message.get("conversationId")
         preview = message.get("preview")
 
-        print(f"[DEBUG] {conversation_id}: {preview}")
 
         # Validar si obtuvimos la información necesaria
         if not conversation_id:
