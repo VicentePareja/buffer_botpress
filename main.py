@@ -50,7 +50,7 @@ def send_buffered_messages_to_logic(conversation_id, messages_list):
         return
 
     # 3. Enviar JSON al bot lógico
-    response = create_message(BASE_URL, user_id, logic_conversation_id, x_user_key, payload)
+    response = create_message(BASE_URL, user_id, logic_conversation_id, x_user_key, str(payload))
     if response:
         print(f"[DEBUG] JSON enviado al bot lógico: {response}")
     else:
